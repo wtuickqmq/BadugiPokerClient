@@ -5,13 +5,13 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Text;
 using System;
-using Assets.uitls;
-using Assets.codecs.impl;
-using Assets.clientevent;
+using Assets.Scripts.uitls;
+using Assets.Scripts.codecs.impl;
+using Assets.Scripts.clientevent;
 using System.Collections.Generic;
-using Assets;
+using Assets.Scripts;
 using System.Linq;
-using Assets.communication;
+using Assets.Scripts.communication;
 
 public class SocketManager : MonoBehaviour {
 
@@ -19,26 +19,18 @@ public class SocketManager : MonoBehaviour {
     public int port = 20001;
 
     private static SocketManager ins;
+	private static GameObject container;
+	private static Dictionary<String,Action<NadEvent>> netEvents=new Dictionary<string, Action<NadEvent>>();
+
     private Socket clientSocket;
     private Thread t;
     private byte[] data = new byte[1024];
-    private Dictionary<String,Action<NadEvent>> netEvents;
-  
+
     // Use this for initialization
     void Start () {
-        if (ins == null) ins = this;
-        netEvents = new Dictionary<string, Action<NadEvent>>();
-
-
-        Test test = new Test();
-        test.addEventListener();
-        Debug.Log("Test Event Listener...");
-        Events evt = new Events();
-        evt.setType(Events.LOG_IN);
-        this.dispatchEvent(evt);
-
+        // if (ins == null) ins = this;
        
-        ConnectToServer();
+        //ConnectToServer();
 
 	}
 	
@@ -46,8 +38,10 @@ public class SocketManager : MonoBehaviour {
 	void Update () {
 	
 	}
-
-    void ConnectToServer()
+	/// <summary>
+	/// 连接到游戏服务器
+	/// </summary>
+    public void ConnectToServer()
     {
         clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         //服务器IP地址
@@ -195,7 +189,16 @@ public class SocketManager : MonoBehaviour {
     {
         if(ins==null)
         {
-            ins = new SocketManager();
+			ins = (SocketManager)GameObject.FindObjectOfType(typeof(SocketManager));  
+
+			if (!ins) {  
+				container = new GameObject();  
+				container.name = "socketMgr";  
+				ins= container.AddComponent(typeof(SocketManager)) as SocketManager; 
+
+			}
+
+            //ins = new SocketManager();
         }
         return ins;
     }
@@ -211,8 +214,11 @@ public class SocketManager : MonoBehaviour {
         }
         value += func;
         netEvents.Add(evt, value);
-  
     }
+	public void removeEventListener(string evt)
+	{
+		netEvents.Remove (evt);
+	}
     private void initEvents(NadEvent evt)
     {
 
