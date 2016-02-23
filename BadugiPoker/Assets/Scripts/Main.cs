@@ -2,7 +2,10 @@
 using UnityEngine.UI;
 using System.Collections;
 using Assets.Scripts.clientevent;
-
+using System.IO;
+using ProtoBuf.Meta;
+using ProtoBuf;
+using com.inkstd.badugi.model;
 
 public class Main : MonoBehaviour {
 	private Text Tips;
@@ -11,6 +14,7 @@ public class Main : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+        
 		//SocketManager.getIns ().Start ();
 		SocketManager.getIns ().addEventListener(Events.START_EVENT, onConnect);
 		SocketManager.getIns ().ConnectToServer ();
@@ -29,7 +33,9 @@ public class Main : MonoBehaviour {
 		}
 	
 	}
-	public void onConnect(NadEvent evt)
+    
+    
+    public void onConnect(NadEvent evt)
 	{
 		tipsstr = "已经连接到游戏服务器";
 		Debug.Log("Connect game server,event string :"+evt.getType());

@@ -12,6 +12,8 @@ using System.Collections.Generic;
 using Assets.Scripts;
 using System.Linq;
 using Assets.Scripts.communication;
+using ProtoBuf;
+using System.IO;
 
 public class SocketManager : MonoBehaviour {
 
@@ -86,7 +88,38 @@ public class SocketManager : MonoBehaviour {
       
 
     }
-    
+    public void SendMsg(IExtensible msg)
+    {
+        byte[] data = Serialize(msg);
+        NadEvent evt = Events.convertEvent(Events.SESSION_MESSAGE, data);
+        if(clientSocket.Connected==true)
+        {
+            LoginInOutCodecs loginCodecs = new LoginInOutCodecs();
+            byte[] dataBytes = loginCodecs.getOutCodecs().transform(evt) as byte[];
+            clientSocket.Send(dataBytes);
+        }
+    }
+
+    public byte[] Serialize(IExtensible msg)
+    {
+        byte[] result;
+        using (var stream = new MemoryStream())
+        {
+            ProtoBuf.Serializer.Serialize(stream, msg);
+            result = stream.ToArray();
+        }
+        return result;
+    }
+
+    public IExtensible Deserialize<IExtensible>(byte[] message)
+    {
+        IExtensible result;
+        using (var stream = new MemoryStream(message))
+        {
+            result = ProtoBuf.Serializer.Deserialize<IExtensible>(stream);
+        }
+        return result;
+    }
     void RecevieMessage()
     {
         while (true)

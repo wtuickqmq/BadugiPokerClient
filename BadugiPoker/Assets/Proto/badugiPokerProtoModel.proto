@@ -1,0 +1,16 @@
+package com.inkstd.badugi.model;
+message LoginInfo {
+    required int32 userid = 1;
+    optional string username = 2;
+	optional string usernick = 3;
+	optional bool sex = 4;
+}
+
+message UserBaseInfo {
+    required int32 userid = 1;
+	optional int32 point = 2;
+	optional int32 gold = 3;
+	optional int32 exp = 4;
+	optional int32 vip = 5;
+
+}
